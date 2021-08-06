@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>User List</h1>
+
+<div class="p-3 mb-2 bg-success bg-gradient text-white">
+<form method = 'POST'>
+    {{form.hidden_tag()}}
+    
+    {{ form.name.label(class="form-label") }} <br/>
+    {{ form.name(class="form-control") }}
+    <br/>
+
+    {{ form.email.label(class="form-label") }}<br/>
+    {{ form.email(class="form-control") }}
+    <br/>
+
+    {{ form.special_power.label(class="form-label") }}<br/>
+    {{ form.special_power(class="form-control") }}
+    <br/>
+
+    {{ form.password_hash.label(class="form-label") }}<br/>
+    {{ form.password_hash(class="form-control") }}
+    <br/>
+    {{ form.password_hash2.label(class="form-label") }}<br/>
+    {{ form.password_hash2(class="form-control") }}
+    <br/>
+
+    {{ form.submit_btn(class="btn btn-success") }}
+</form>
+
+</div>
+
+<br/><br/>
+
+{% for messages in get_flashed_messages() %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            {{messages}}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+   
+{% endfor %}
+<!--
+<ul>
+    {% for user in current_users%}
+        <li>{{user.name}} | {{user.email}}</li>
+    {%endfor%}
+</ul>
+-->
+
+<table class="table table-success table-hover table-striped">
+    
+        {% for user in current_users%}
+         <tr><td>{{user.id}} | <a href = "{{ url_for('update', id = user.id) }}">{{user.name}}</a> | {{user.email}} | {{user.special_power}} | <a href = "{{ url_for('delete', id = user.id) }}">DELETE</a></td></tr>
+        {%endfor%}
+    
+</table>
+
+{% endblock %}

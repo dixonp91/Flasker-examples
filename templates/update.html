@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Update A User</h1>
+
+<table class="table table-success table-hover table-striped">
+    
+    {% for user in current_users%}
+     <tr><td>{{user.id}} | {{user.name}} | {{user.email}} | {{user.special_power}}</td></tr>
+    {%endfor%}
+
+</table>
+
+<div class="p-3 mb-2 bg-success bg-gradient text-white">
+<form action ="/update/{{update_name.id}}" method = 'POST'>
+    {{form.hidden_tag()}}
+    
+    {{ form.name.label(class="form-label") }} <br/>
+    {{ form.name(class="form-control", value = update_name.name) }}
+    <br/>
+
+    {{ form.email.label(class="form-label") }}<br/>
+    {{ form.email(class="form-control", value = update_name.email) }}
+    <br/>
+
+    {{ form.special_power.label(class="form-label") }}<br/>
+    {{ form.special_power(class="form-control", value = update_name.special_power) }}
+    <br/>
+
+    {{ form.submit_btn(class="btn btn-success") }}
+</form>
+
+</div>
+
+<br/><br/>
+
+{% for messages in get_flashed_messages() %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            {{messages}}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+   
+{% endfor %}
+
+{% endblock %}
