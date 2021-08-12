@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    {% for messages in get_flashed_messages() %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            {{messages}}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+   
+    {% endfor %}
+    </br>
+    <h1>Best Damn Posts In The Universe!</h1>
+
+    </br>
+
+    
+    {% for post in posts %}
+    <div class="p-3 mb-2 bg-success bg-gradient text-white">
+            <h3>{{post.title}}</h3>  </br>
+            <h4>Posted By: {{post.author}}  | On: {{post.date_post}}</h4> </br>
+            <p>{{post.content}}</p>
+    </div>
+    </br>
+    <hr>
+    {% endfor %}
+    
+{% endblock %} 

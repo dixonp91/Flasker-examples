@@ -2,14 +2,20 @@ from enum import unique
 from os import name
 
 from flask import Flask, render_template, redirect, flash, request
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
+from wtforms.fields.core import DateField
+from wtforms.fields.simple import TextField
 from wtforms.validators import DataRequired, EqualTo, Length
+from wtforms.widgets import TextArea
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.datastructures import Authorization
 
 #create Falsk Instance
 app = Flask(__name__)
@@ -36,6 +42,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+#create post class
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(250))
+    content = db.Column(db.Text)
+    author = db.Column(db.String(255))
+    date_post = db.Column(db.DateTime, default = datetime.utcnow)
+    slug = db.Column(db.String(255))
+
 #create db class
 class User(db.Model):
     id= db.Column(db.Integer, primary_key = True)
@@ -55,6 +70,14 @@ class User(db.Model):
     
     def verify_password (self, password):
         return check_password_hash(self.password_hash, password)
+
+#create Post Form
+class PostForm(FlaskForm):
+    title =StringField("Title", validators = [DataRequired()])
+    author = StringField("Author", validators=[DataRequired()])
+    content = StringField("Content", validators=[DataRequired()], widget=TextArea())
+    slug = StringField("Slug", )
+    submit_btn = SubmitField("Submit")
 
 #create a class for user form
 class UserForm(FlaskForm):
@@ -79,6 +102,28 @@ class PasswordForm(FlaskForm):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route('/posts')
+def posts():
+    posts = Post.query.order_by(Post.date_post)
+    return render_template("posts.html", posts=posts)
+
+@app.route("/add-post", methods = ['GET', 'POST'])
+def add_post():
+    form = PostForm()
+
+    if form.validate_on_submit():
+        post = Post(title = form.title.data, author = form.author.data, content = form.content.data, slug = form.slug.data)
+        form.title.data = ""
+        form.author.data = ""
+        form.content.data = ""
+        form.slug.data = ""
+
+        db.session.add(post)
+        db.session.commit()
+        flash("Post Was Submitted!!!")
+    current_posts = Post.query.order_by(Post.date_post)
+    return render_template("add_post.html", form = form, current_posts = current_posts)
 
 @app.route("/login_pw", methods = ["GET", "POST"])
 def login_pw():

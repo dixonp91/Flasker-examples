@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+    <h1>Add New Post!</h1>
+    {% for messages in get_flashed_messages() %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+        <div>
+            {{messages}}
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+   
+    {% endfor %}
+    </br>
+    <div class="p-3 mb-2 bg-success bg-gradient text-white">
+        <form method = 'POST'>
+            {{form.hidden_tag()}}
+            
+            {{ form.title.label(class="form-label") }} <br/>
+            {{ form.title(class="form-control") }}
+            <br/>
+        
+            {{ form.author.label(class="form-label") }}<br/>
+            {{ form.author(class="form-control") }}
+            <br/> 
+            
+            {{ form.slug.label(class="form-label") }}<br/>
+            {{ form.slug(class="form-control") }}
+            <br/>  
+
+            {{ form.content.label(class="form-label") }}<br/>
+            {{ form.content(class="form-control", rows = 5) }}
+            <br/>  
+            {{ form.submit_btn(class="btn btn-success") }}
+        </form>
+        
+    </div>
+
+    </br>
+    <table class="table table-success table-hover table-striped">
+        {% for post in current_posts %}
+            <tr><td>{{post.title}}  |  {{post.author}}  | {{post.date_post}} </td></tr>
+
+        {% endfor %}
+    </table>
+{% endblock %} 
