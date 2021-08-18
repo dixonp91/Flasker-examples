@@ -1,7 +1,7 @@
 from enum import unique
 from os import name
 
-from flask import Flask, render_template, redirect, flash, request
+from flask import Flask, render_template, redirect, flash, request, url_for
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, BooleanField, ValidationError
@@ -12,6 +12,7 @@ from wtforms.widgets import TextArea
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_login import UserMixin, login_user, LoginManager, login_required, logout_user, current_user
 
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,8 +53,9 @@ class Post(db.Model):
     slug = db.Column(db.String(255))
 
 #create db class
-class User(db.Model):
+class User(db.Model, UserMixin):
     id= db.Column(db.Integer, primary_key = True)
+    username = db.Column(db.String(25), nullable = False, unique = True)
     name= db.Column(db.String(20), nullable = False, index = True )
     email=db.Column(db.String(80), index=True, nullable = False, unique=True)
     special_power = db.Column(db.String(150))
@@ -107,6 +109,51 @@ def index():
 def posts():
     posts = Post.query.order_by(Post.date_post)
     return render_template("posts.html", posts=posts)
+
+@app.route("/post/<int:id>")
+def post(id):
+    post = Post.query.get_or_404(id)
+
+    return render_template("post.html", post=post)
+
+@app.route("/posts/delete/<int:id>")
+def delete_post(id):
+    post_to_delete = Post.query.get_or_404(id)
+
+    try:
+        db.session.delete(post_to_delete)
+        db.session.commit()
+        flash("Post Deleted")
+
+        posts = Post.query.order_by(Post.date_post)
+        return render_template("posts.html", posts=posts)
+
+    except:
+        flash("something went wrong, can't delete")
+        posts = Post.query.order_by(Post.date_post)
+        return render_template("posts.html", posts=posts)
+
+@app.route("/posts/edit/<int:id>", methods = ["GET", "POST"])
+def edit_post(id):
+    post = Post.query.get_or_404(id)
+    form = PostForm()
+
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.author = form.author.data
+        post.content = form.content.data
+        post.slug = form.slug.data
+
+        db.session.add(post)
+        db.session.commit()
+        flash("Post Updated")
+
+        return redirect(url_for('post', id=post.id))
+    form.title.data = post.title
+    form.author.data = post.author
+    form.content.data = post.content
+    form.slug.data = post.slug
+    return render_template("edit_post.html", form = form, post = post)
 
 @app.route("/add-post", methods = ['GET', 'POST'])
 def add_post():
